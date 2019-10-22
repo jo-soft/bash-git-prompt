@@ -477,6 +477,18 @@ function createPrivateIndex {
   echo "${__GIT_INDEX_PRIVATE}"
 }
 
+function shorten() {
+  local ARG=$1;
+
+  case "$ARG" in 
+  *USSFE-[0-9]*)
+    echo $ARG | sed -e 's/^.*\(USSFE-[0-9]\+\).*$/\1/'
+    ;;
+  *)
+  echo $ARG
+esac
+}
+
 function updatePrompt() {
   local LAST_COMMAND_INDICATOR
   local PROMPT_LEADING_SPACE
@@ -502,7 +514,8 @@ function updatePrompt() {
   local -a git_status_fields
   while IFS=$'\n' read -r line; do git_status_fields+=("${line}"); done < <("${__GIT_STATUS_CMD}" 2>/dev/null)
 
-  export GIT_BRANCH=$(replaceSymbols "${git_status_fields[0]}")
+  local TMP_GIT_BRANCH="$(replaceSymbols "${git_status_fields[0]}")"
+  export GIT_BRANCH="$(shorten "$TMP_GIT_BRANCH")"
   local GIT_REMOTE="$(replaceSymbols "${git_status_fields[1]}")"
   if [[ "." == "${GIT_REMOTE}" ]]; then
     unset GIT_REMOTE
